@@ -5,6 +5,7 @@ import 'flutter_flow/flutter_flow_theme.dart';
 import 'flutter_flow/flutter_flow_util.dart';
 import 'flutter_flow/internationalization.dart';
 import 'flutter_flow/nav/nav.dart';
+import 'package:freerasp/talsec_app.dart';
 import 'index.dart';
 
 void main() async {
@@ -16,6 +17,8 @@ void main() async {
 
   runApp(MyApp());
 }
+
+
 
 class MyApp extends StatefulWidget {
   // This widget is the root of your application.
@@ -33,11 +36,48 @@ class _MyAppState extends State<MyApp> {
   late AppStateNotifier _appStateNotifier;
   late GoRouter _router;
 
+Future<void> initSecurityState() async {
+  TalsecConfig config = TalsecConfig(
+
+    // For Android
+    androidConfig: AndroidConfig(
+      expectedPackageName: 'com.mycompany.raspproject',
+      expectedSigningCertificateHash: 'F5wKs4zc/psFZk+eYPESfeS/b/RqVvuFSRE52d7TXzc=',
+      supportedAlternativeStores: ["com.sec.android.app.samsungapps"],
+    ),
+
+    // Common email for Alerts and Reports
+    watcherMail: 'abhishek@flutterflow.io',
+  );
+
+  TalsecCallback callback = TalsecCallback(
+  // For Android
+  androidCallback: AndroidCallback(
+    onRootDetected: () => print('root'),
+    onEmulatorDetected: () {print("Found emulator");},
+    onHookDetected: () => print('hook'),
+    onTamperDetected: () => print('tamper'),
+    onDeviceBindingDetected: () => print('device binding'),
+    onUntrustedInstallationDetected: () => print('untrusted install'),
+  ),
+  // Common for both platforms
+  onDebuggerDetected: () => print('debugger'),
+  );
+
+  TalsecApp app = TalsecApp(
+    config: config,
+    callback: callback,
+  );
+
+  app.start();
+}
   @override
   void initState() {
     super.initState();
     _appStateNotifier = AppStateNotifier();
     _router = createRouter(_appStateNotifier);
+
+    initSecurityState();
   }
 
   void setLocale(String language) =>
